@@ -2,9 +2,16 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
+import mongoose from 'mongoose';
 
 // initialize
 const app = express();
+
+// DB Setup
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/api/';
+mongoose.connect(mongoURI);
+// set mongoose promises to es6 default
+mongoose.Promise = global.Promise;
 
 // enable/disable cross origin resource sharing if necessary
 app.use(cors());
