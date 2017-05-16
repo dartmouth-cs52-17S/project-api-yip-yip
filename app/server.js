@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 
 // default index route
 app.get('/', (req, res) => {
-  res.send('hi');
+  res.send('welcome');
 });
 
 // START THE SERVER
