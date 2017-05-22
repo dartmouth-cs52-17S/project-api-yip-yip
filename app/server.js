@@ -3,12 +3,12 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import mongoose from 'mongoose';
-import apiRouter from './api_router';
+// import apiRouter from './api_router';
 // initialize
 const app = express();
 
 // DB Setup
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/api/';
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/yipyip';
 mongoose.connect(mongoURI);
 // set mongoose promises to es6 default
 mongoose.Promise = global.Promise;

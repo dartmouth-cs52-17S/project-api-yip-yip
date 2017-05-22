@@ -1,11 +1,22 @@
 import mongoose, { Schema } from 'mongoose';
 
-// create a PostSchema with a title field
 const PostSchema = new Schema({
-  content: String,
-  tags: String,
-  cover_url: String,
-
+  text: String,
+  score: Number,
+  comments: [
+    {
+      text: String,
+      score: Number,
+      timestamp: Date,
+      user: String,
+    },
+  ],
+  timestamp: Date,
+  tags: [String],
+  location: {
+    type: String,
+    coordinates: [Number],
+  },
 }, {
   toJSON: {
     virtuals: true,
