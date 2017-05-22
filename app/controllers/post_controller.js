@@ -2,14 +2,18 @@ import Post from '../models/post_model';
 
 export const createPost = (post) => {
   const p = new Post();
+  p.text = post.text;
+  p.score = 1;
+  p.timestamp = Date.now();
   p.tags = post.tags;
-  p.content = post.content;
-  p.cover_url = post.cover_url;
+  p.location = post.location;
   return p.save();
 };
 
 export const getPosts = (req, res) => {
-  return Post.find({});
+  return Post.find({ location: { $lte: req.location } })
+    .limit(10)
+    .sort('-timestamp');
 };
 
 export const getPost = (id) => {
@@ -18,7 +22,4 @@ export const getPost = (id) => {
 
 export const deletePost = (id) => {
   return Post.findByIdAndRemove(id);
-};
-export const updatePost = (id, post) => {
-  return Post.findById(id).update(post);
 };
