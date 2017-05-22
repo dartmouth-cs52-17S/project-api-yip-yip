@@ -11,7 +11,8 @@ export const createPost = (post) => {
 };
 
 export const getPosts = (req, res) => {
-  return Post.find({ location: { $lte: req.location } })
+  // Find nearest posts, max distance of 8000m/~5miles (temporary)
+  return Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.body.long, req.body.lat] }, $maxDistance: 8000 } } })
     .limit(10)
     .sort('-timestamp');
 };

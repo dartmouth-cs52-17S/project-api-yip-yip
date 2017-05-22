@@ -9,6 +9,8 @@ const PostSchema = new Schema({
       score: Number,
       timestamp: Date,
       user: String,
+      upvoters: [String],
+      downvoters: [String],
     },
   ],
   timestamp: Date,
@@ -17,6 +19,8 @@ const PostSchema = new Schema({
     type: String,
     coordinates: [Number],
   },
+  upvoters: [String],
+  downvoters: [String],
 }, {
   toJSON: {
     virtuals: true,
