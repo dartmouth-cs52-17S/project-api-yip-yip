@@ -1,5 +1,4 @@
 import Post from '../models/post_model';
-import * as Comments from './comment_controller';
 
 export const createPost = (req, res) => {
   const { text, tags, coordinates } = req.body;
@@ -97,20 +96,25 @@ function updatePost(post, params) {
       break;
     case 'UPVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment.id === params.commentId) {
+        if (comment._id.toString() === params.commentId) {
           comments[index] = vote(comment, params.user, 'UP');
         }
       });
       break;
     case 'DOWNVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment.id === params.commentId) {
+        if (comment._id.toString() === params.commentId) {
           comments[index] = vote(comment, params.user, 'DOWN');
         }
       });
       break;
     case 'CREATE_COMMENT':
-      post.comments.push(Comments.createComment(params.comment, params.user));
+      post.comments.push({
+        text: params.comment,
+        user: params.user,
+        upvoters: [params.user],
+        downvoters: [],
+      });
       break;
     default:
   }
