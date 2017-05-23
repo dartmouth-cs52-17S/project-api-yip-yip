@@ -1,30 +1,15 @@
+import shortid from 'shortid';
 import Comment from '../models/comment_model';
 
-export const createComment = (comment) => {
+const createComment = (comment, user) => {
   const c = new Comment();
+  c.id = shortid.generate();
   c.text = comment.text;
   c.timestamp = Date.now();
-  c.user = comment.user;
-  c.upvoters = [];
+  c.user = user;
+  c.upvoters = [c.user];
   c.downvoters = [];
-  return c.save();
+  return c;
 };
 
-export const getComments = (req, res) => {
-  Comment.find({})
-    .sort('-timestamp')
-    .then((comments) => {
-      res.json(comments);
-    }).catch((err) => {
-      res.status(500).json(err);
-    });
-};
-
-export const deleteComment = (req, res) => {
-  Comment.findByIdAndRemove(req.body.id)
-    .then((comment) => {
-      res.json(comment);
-    }).catch((err) => {
-      res.status(500).json(err);
-    });
-};
+export default createComment;
