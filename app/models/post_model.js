@@ -3,7 +3,9 @@ import CommentSchema from './comment_model';
 
 const PostSchema = new Schema({
   text: String,
+  score: Number,
   comments: [CommentSchema],
+  commentsLen: { type: Number, default: 0 },
   timestamp: { type: Date, default: Date.now() },
   tags: [String],
   location: {
@@ -16,10 +18,6 @@ const PostSchema = new Schema({
   toJSON: {
     virtuals: true,
   },
-});
-
-PostSchema.virtual('score').get(function calcScore() {
-  return this.upvoters.length - this.downvoters.length;
 });
 
 const PostModel = mongoose.model('Post', PostSchema);

@@ -12,5 +12,6 @@ router.route('/posts/:id')
   .put(Posts.editPost)
   .delete(Posts.deletePost);
 
+router.get('/search', Posts.getByTags);
 
 export default router;
