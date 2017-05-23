@@ -1,13 +1,13 @@
 import mongoose, { Schema } from 'mongoose';
-import CommentModel from './comment_model';
+import CommentSchema from './comment_model';
 
 const PostSchema = new Schema({
   text: String,
-  comments: [CommentModel],
-  timestamp: Date,
+  comments: [CommentSchema],
+  timestamp: { type: Date, default: Date.now() },
   tags: [String],
   location: {
-    type: String,
+    type: { type: String, default: 'Point' },
     coordinates: [Number],
   },
   upvoters: [String],

@@ -1,25 +1,33 @@
 import Post from '../models/post_model';
 
-export const createPost = (post) => {
-  const p = new Post();
-  p.text = post.text;
-  p.timestamp = Date.now();
-  p.tags = post.tags;
-  p.location = post.location;
-  p.upvoters = [];
-  p.downvoters = [];
-  return p.save();
+export const createPost = (req, res) => {
+  const { text, tags, coordinates } = req.body;
+  const p = new Post({ tags, text, location: { coordinates }, upvoters: ['user.id'] });
+  p.save()
+    .then((result) => {
+      res.json(p);
+    })
+    .catch((error) => {
+      res.status(500).json({ error });
+    });
 };
 
 export const getPosts = (req, res) => {
   // Find nearest posts, max distance of 8000m/~5miles (temporary)
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.body.long, req.body.lat] }, $maxDistance: 8000 } } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
     .limit(10)
-    .sort('-timestamp');
+    .sort('-timestamp')
+    .then((posts) => {
+      res.json(posts);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
 };
 
 export const getPost = (req, res) => {
-  Post.findById(req.body.id)
+  console.log(req.params.id);
+  Post.findById(req.params.id)
     .then((post) => {
       res.json(post);
     }).catch((err) => {

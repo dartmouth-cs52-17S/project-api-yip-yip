@@ -3,7 +3,9 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
 import mongoose from 'mongoose';
-// import apiRouter from './api_router';
+import morgan from 'morgan';
+import apiRouter from './api_router';
+
 // initialize
 const app = express();
 
@@ -26,11 +28,10 @@ app.set('views', path.join(__dirname, '../app/views'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.use(morgan('combined'));
 
 // default index route
-app.get('/', (req, res) => {
-  res.send('welcome');
-});
+app.use('/api', apiRouter);
 
 // START THE SERVER
 // =============================================================================
