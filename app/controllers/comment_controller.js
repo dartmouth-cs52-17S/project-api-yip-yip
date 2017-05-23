@@ -1,7 +1,7 @@
 import shortid from 'shortid';
 import Comment from '../models/comment_model';
 
-export const createComment = (comment, user) => {
+const createComment = (comment, user) => {
   const c = new Comment();
   c.id = shortid.generate();
   c.text = comment.text;
@@ -11,3 +11,5 @@ export const createComment = (comment, user) => {
   c.downvoters = [];
   return c;
 };
+
+export default createComment;

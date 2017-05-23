@@ -60,21 +60,29 @@ export const deletePost = (req, res) => {
 };
 
 function vote(item, user, direction) {
-  item.upvoters.push(user);
+  let addArray = [];
+  let removeArray = [];
+  let scoreChange = 1;
   if (direction === 'UP') {
-    if (item.downvoters.contains(user)) {
-      item.downvoters.remove(item.downvoters.indexOf(user));
-      item.score += 2;
-    } else {
-      item.score += 1;
-    }
+    addArray = item.upvoters;
+    removeArray = item.downvoters;
   } else if (direction === 'DOWN') {
-    if (item.upvoters.contains(user)) {
-      item.upvoters.remove(item.upvoters.indexOf(user));
-      item.score -= 2;
-    } else {
-      item.score -= 1;
-    }
+    addArray = item.downvoters;
+    removeArray = item.upvoters;
+    scoreChange *= -1;
+  } else {
+    console.log('Neither UP nor DOWN direction was provided.');
+    return item;
+  }
+  if (addArray.includes(user)) {
+    return item;
+  } else if (removeArray.includes(user)) {
+    removeArray.splice(removeArray.indexOf(user), 1);
+    addArray.push(user);
+    item.score += scoreChange * 2;
+  } else {
+    addArray.push(user);
+    item.score += scoreChange;
   }
   return item;
 }
@@ -113,7 +121,9 @@ function updatePost(post, params) {
 export const editPost = (req, res) => {
   Post.findById(req.params.id)
     .then((post) => {
+      console.log(`before post ${post}`);
       post = updatePost(post, req.body);
+      console.log(`after post ${post}`);
       post.save()
         .then((updated) => {
           res.json(updated);
