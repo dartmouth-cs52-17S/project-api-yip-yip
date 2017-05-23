@@ -1,6 +1,7 @@
 import { Schema } from 'mongoose';
 
 const CommentSchema = new Schema({
+  id: String,
   text: String,
   timestamp: Date,
   user: String,

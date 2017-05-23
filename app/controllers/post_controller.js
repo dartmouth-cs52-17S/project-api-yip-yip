@@ -1,4 +1,5 @@
 import Post from '../models/post_model';
+import * as Comments from './comment_controller';
 
 export const createPost = (req, res) => {
   const { text, tags, coordinates } = req.body;
@@ -39,6 +40,7 @@ export const getPosts = (req, res) => {
 };
 
 export const getPost = (req, res) => {
+  // TODO maybe sort the comments by time
   console.log(req.params.id);
   Post.findById(req.params.id)
     .then((post) => {
@@ -57,10 +59,68 @@ export const deletePost = (req, res) => {
     });
 };
 
+function vote(item, user, direction) {
+  item.upvoters.push(user);
+  if (direction === 'UP') {
+    if (item.downvoters.contains(user)) {
+      item.downvoters.remove(item.downvoters.indexOf(user));
+      item.score += 2;
+    } else {
+      item.score += 1;
+    }
+  } else if (direction === 'DOWN') {
+    if (item.upvoters.contains(user)) {
+      item.upvoters.remove(item.upvoters.indexOf(user));
+      item.score -= 2;
+    } else {
+      item.score -= 1;
+    }
+  }
+  return item;
+}
+
+function updatePost(post, params) {
+  switch (params.action) {
+    case 'UPVOTE_POST':
+      post = vote(post, params.user, 'UP');
+      break;
+    case 'DOWNVOTE_POST':
+      post = vote(post, params.user, 'DOWN');
+      break;
+    case 'UPVOTE_COMMENT':
+      post.comments.forEach((comment, index, comments) => {
+        if (comment.id === params.commentId) {
+          comments[index] = vote(comment, params.user, 'UP');
+        }
+      });
+      break;
+    case 'DOWNVOTE_COMMENT':
+      post.comments.forEach((comment, index, comments) => {
+        if (comment.id === params.commentId) {
+          comments[index] = vote(comment, params.user, 'DOWN');
+        }
+      });
+      break;
+    case 'CREATE_COMMENT':
+      post.comments.push(Comments.createComment(params.comment, params.user));
+      break;
+    default:
+  }
+
+  return post;
+}
+
 export const editPost = (req, res) => {
   Post.findById(req.params.id)
     .then((post) => {
-      res.json(post);
+      post = updatePost(post, req.body);
+      post.save()
+        .then((updated) => {
+          res.json(updated);
+        })
+        .catch((err) => {
+          res.status(555).json(err);
+        });
     }).catch((err) => {
       res.status(500).json(err);
     });
