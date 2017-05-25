@@ -27,7 +27,7 @@ export const getPosts = (req, res) => {
   }
   sort.timestamp = -1;
 
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.lat, req.query.long] }, $maxDistance: 8000 } } })
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort(sort)
     .then((posts) => {
@@ -96,14 +96,18 @@ function updatePost(post, params) {
       break;
     case 'UPVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment._id.toString() === params.commentId) {
+        if (comment._id === params.commentId) {
+          // console.log('HUZZAH A MATCH');
           comments[index] = vote(comment, params.user, 'UP');
         }
       });
       break;
     case 'DOWNVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment._id.toString() === params.commentId) {
+        console.log('ID');
+        console.log(params._id);
+        if (comment._id === params.commentId) {
+          // console.log('HUZZAH A MATCH');
           comments[index] = vote(comment, params.user, 'DOWN');
         }
       });
