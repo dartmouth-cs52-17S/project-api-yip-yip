@@ -1,9 +1,8 @@
 import { Schema } from 'mongoose';
 
 const CommentSchema = new Schema({
-  id: String,
   text: String,
-  timestamp: Date,
+  timestamp: { type: Date, default: Date.now() },
   user: String,
   upvoters: [String],
   downvoters: [String],
