@@ -6,7 +6,7 @@ const PostSchema = new Schema({
   score: Number,
   comments: [CommentSchema],
   commentsLen: { type: Number, default: 0 },
-  timestamp: { type: Date, default: Date.now() },
+  timestamp: Date,
   tags: [String],
   location: {
     type: { type: String, default: 'Point' },

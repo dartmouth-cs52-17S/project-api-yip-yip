@@ -5,6 +5,7 @@ export const createPost = (req, res) => {
   const p = new Post({ tags, text, location: { coordinates }, upvoters: ['user.id'] });
   p.score = 1;
   p.commentsLen = 0;
+  p.timestamp = Date.now();
   p.save()
     .then((result) => {
       res.json(p);
@@ -118,6 +119,7 @@ function updatePost(post, params) {
         user: params.user,
         upvoters: [params.user],
         downvoters: [],
+        timestamp: Date.now(),
       });
       break;
     default:
