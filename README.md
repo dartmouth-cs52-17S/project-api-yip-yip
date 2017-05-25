@@ -1,15 +1,45 @@
-# starter express app template
+# Yip Yip API
 
-* node with babel
-* expressjs
-* airbnb eslint rules
-We can deploy the backend to heroku
+### Overview
+This is the API part of the Yip Yip application that we are making for CS52. The root URL is https://yip-yip.herokuapp.com/api.
+Working example [here](http://yip-yip.herokuapp.com/api/posts/?long=5.000001&lat=6.000001)!!
 
-$ heroku login
-$ heroku create -a yip yip
-$ git push heroku master
-$ heroku open
+### Possible Actions
+- UPVOTE_POST
+- DOWNVOTE_POST
+- UPVOTE_COMMENT
+- DOWNVOTE_COMMENT
+- CREATE_COMMENT
 
-Heroku will follow the build command in the package.json and compile assets with webpack.prod.config.js. It runs the Express web server in server.js.
+### Testing
+For testing the API, try some `curl` calls.
 
-Procfile set up to run on [heroku](https://devcenter.heroku.com/articles/getting-started-with-nodejs#deploy-the-app)
+An example of a post ID is `59249187ff5aa5002228092e`.
+
+- create new post
+```shell
+curl -X POST -H "Content-Type: application/json" -d '{
+    "text": "yooo~ what's new here?",
+    "tags": "#newbieInTown",
+    "coordinates":  [5, 6],
+    "user_id": "603 123 1279"
+}' "https://yip-yip.herokuapp.com/api/posts"
+```
+
+- fetch by POSTID
+```shell
+curl -X GET "https://yip-yip.herokuapp.com/api/posts/POSTID"
+```
+
+- delete by POSTID
+```shell
+curl -X DELETE "https://yip-yip.herokuapp.com/api/posts/POSTID"
+```
+
+
+### Contributers
+- Armin Mahban
+- Byrne Hollander
+- Ellis Guo
+- Jenny Seong
+- Ying Liu
