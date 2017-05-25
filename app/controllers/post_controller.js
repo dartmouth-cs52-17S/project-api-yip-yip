@@ -28,7 +28,7 @@ export const getPosts = (req, res) => {
   }
   sort.timestamp = -1;
 
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.lat, req.query.long] }, $maxDistance: 8000 } } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort(sort)
     .then((posts) => {
