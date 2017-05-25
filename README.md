@@ -12,6 +12,7 @@ Working example [here](http://yip-yip.herokuapp.com/api/posts/?long=5.000001&lat
 - CREATE_COMMENT
 
 ### Testing
+
 For testing the API, try some `curl` calls.
 
 An example of a post ID is `59249187ff5aa5002228092e`.
@@ -36,6 +37,8 @@ curl -X GET "https://yip-yip.herokuapp.com/api/posts/POSTID"
 curl -X DELETE "https://yip-yip.herokuapp.com/api/posts/POSTID"
 ```
 
+Travis is also set up for this repo:
+![Travis](img/Travis.png)
 
 ### Contributers
 - Armin Mahban
