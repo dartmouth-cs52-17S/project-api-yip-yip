@@ -2,7 +2,7 @@ import { Schema } from 'mongoose';
 
 const CommentSchema = new Schema({
   text: String,
-  timestamp: { type: Date, default: Date.now() },
+  timestamp: Date,
   user: String,
   upvoters: [String],
   downvoters: [String],

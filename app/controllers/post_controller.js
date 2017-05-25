@@ -5,6 +5,7 @@ export const createPost = (req, res) => {
   const p = new Post({ tags, text, location: { coordinates }, upvoters: ['user.id'] });
   p.score = 1;
   p.commentsLen = 0;
+  p.timestamp = Date.now();
   p.save()
     .then((result) => {
       res.json(p);
@@ -96,14 +97,18 @@ function updatePost(post, params) {
       break;
     case 'UPVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment._id.toString() === params.commentId) {
+        if (comment._id === params.commentId) {
+          // console.log('HUZZAH A MATCH');
           comments[index] = vote(comment, params.user, 'UP');
         }
       });
       break;
     case 'DOWNVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment._id.toString() === params.commentId) {
+        console.log('ID');
+        console.log(params._id);
+        if (comment._id === params.commentId) {
+          // console.log('HUZZAH A MATCH');
           comments[index] = vote(comment, params.user, 'DOWN');
         }
       });
@@ -114,6 +119,7 @@ function updatePost(post, params) {
         user: params.user,
         upvoters: [params.user],
         downvoters: [],
+        timestamp: Date.now(),
       });
       break;
     default:
