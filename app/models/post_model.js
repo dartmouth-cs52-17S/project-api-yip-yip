@@ -8,6 +8,7 @@ const PostSchema = new Schema({
   commentsLen: { type: Number, default: 0 },
   timestamp: Date,
   tags: [String],
+  user: String,
   location: {
     type: { type: String, default: 'Point' },
     coordinates: [Number],
