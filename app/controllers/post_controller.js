@@ -148,11 +148,25 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  Post.find({ tags: { $all: req.query.tags } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.lat, req.query.long] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+};
+
+export const getTrendingTags = (req, res) => {
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  Post.find({ timestamp: { $gte: date } })
+    .select('tags')
+    .then((tags) => {
+      // TODO find most common tags, return array of them
+      res.json(tags);
     })
     .catch((err) => {
       res.status(500).json(err);
