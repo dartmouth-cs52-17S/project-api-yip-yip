@@ -1,8 +1,8 @@
 import Post from '../models/post_model';
 
 export const createPost = (req, res) => {
-  const { text, tags, coordinates } = req.body;
-  const p = new Post({ tags, text, location: { coordinates }, upvoters: ['user.id'] });
+  const { text, tags, coordinates, user } = req.body;
+  const p = new Post({ tags, text, user, location: { coordinates }, upvoters: [user] });
   p.score = 1;
   p.commentsLen = 0;
   p.timestamp = Date.now();
