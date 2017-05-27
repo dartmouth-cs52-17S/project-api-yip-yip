@@ -40,7 +40,7 @@ curl -X DELETE "https://yip-yip.herokuapp.com/api/posts/POSTID"
 Travis is also set up for this repo:
 ![Travis](img/Travis.png)
 
-### Contributers
+### Contributors
 - Armin Mahban
 - Byrne Hollander
 - Ellis Guo

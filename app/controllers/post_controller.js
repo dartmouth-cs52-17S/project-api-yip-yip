@@ -1,8 +1,8 @@
 import Post from '../models/post_model';
 
 export const createPost = (req, res) => {
-  const { text, tags, coordinates } = req.body;
-  const p = new Post({ tags, text, location: { coordinates }, upvoters: ['user.id'] });
+  const { text, tags, coordinates, user } = req.body;
+  const p = new Post({ tags, text, user, location: { coordinates }, upvoters: [user] });
   p.score = 1;
   p.commentsLen = 0;
   p.timestamp = Date.now();
@@ -28,7 +28,7 @@ export const getPosts = (req, res) => {
   }
   sort.timestamp = -1;
 
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.lat, req.query.long] }, $maxDistance: 8000 } } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort(sort)
     .then((posts) => {
