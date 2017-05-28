@@ -30,7 +30,8 @@ export const getPosts = (req, res) => {
   }
 
   Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
-    .limit(10) // TODO: input limit to allow for dynamic loading
+    .skip((req.query.page - 1) * 5)
+    .limit(5) // TODO: input limit to allow for dynamic loading
     .sort(sort)
     .then((posts) => {
       res.json(posts);
@@ -41,7 +42,6 @@ export const getPosts = (req, res) => {
 };
 
 export const getPost = (req, res) => {
-  // TODO maybe sort the comments by time
   console.log(req.params.id);
   Post.findById(req.params.id)
     .then((post) => {
@@ -149,11 +149,28 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  Post.find({ tags: { $all: req.query.tags } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
+    .skip((req.query.page - 1) * 5)
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+};
+
+export const getTrendingTags = (req, res) => {
+  const date = new Date();
+  date.setDate(date.getDate() - 7);
+  console.log(date);
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, timestamp: { $gte: date } })
+    .select('tags')
+    .then((tags) => {
+      // const tagFreqs = {};
+      // tags.forEach();
+      res.json(tags);
     })
     .catch((err) => {
       res.status(500).json(err);
