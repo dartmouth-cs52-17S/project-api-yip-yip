@@ -1,3 +1,4 @@
+// import TinyQueue from 'tinyqueue';
 import Post from '../models/post_model';
 
 export const createPost = (req, res) => {
@@ -18,10 +19,10 @@ export const createPost = (req, res) => {
 export const getPosts = (req, res) => {
   const sort = {};
   switch (req.query.sort) {
-    case 'VOTES':
+    case 'Top':
       sort.score = -1;
       break;
-    case 'COMMENTS':
+    case 'Comments':
       sort.commentsLen = -1;
       break;
     default:
@@ -30,7 +31,7 @@ export const getPosts = (req, res) => {
 
   Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
     .skip((req.query.page - 1) * 5)
-    .limit(5) // TODO: input limit to allow for dynamic loading
+    .limit(5)
     .sort(sort)
     .then((posts) => {
       res.json(posts);
@@ -98,7 +99,6 @@ function updatePost(post, params) {
     case 'UPVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
         if (comment._id === params.commentId) {
-          // console.log('HUZZAH A MATCH');
           comments[index] = vote(comment, params.user, 'UP');
         }
       });
@@ -108,7 +108,6 @@ function updatePost(post, params) {
         console.log('ID');
         console.log(params._id);
         if (comment._id === params.commentId) {
-          // console.log('HUZZAH A MATCH');
           comments[index] = vote(comment, params.user, 'DOWN');
         }
       });
@@ -150,7 +149,7 @@ export const editPost = (req, res) => {
 export const getByTags = (req, res) => {
   Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
     .skip((req.query.page - 1) * 5)
-    .limit(10) // TODO: input limit to allow for dynamic loading
+    .limit(10)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
@@ -168,7 +167,9 @@ export const getTrendingTags = (req, res) => {
     .select('tags')
     .then((tags) => {
       // const tagFreqs = {};
-      // tags.forEach();
+      // tags.forEach((item) => {
+      //
+      // });
       res.json(tags);
     })
     .catch((err) => {
