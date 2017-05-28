@@ -6,6 +6,8 @@ const CommentSchema = new Schema({
   user: String,
   upvoters: [String],
   downvoters: [String],
+  icon: String,
+  color: String,
 }, {
   toJSON: {
     virtuals: true,

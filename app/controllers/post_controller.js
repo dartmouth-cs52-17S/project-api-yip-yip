@@ -89,6 +89,44 @@ function vote(item, user, direction) {
   return item;
 }
 
+function addComment(post, params) {
+  let icon = post.commentIcons[post.iconIndex];
+  let color = post.commentColors[post.colorIndex];
+  let match = false;
+  for (let i = 0; i < post.comments.length; i++) {
+    console.log(post.comments[i], params.user);
+    console.log('here');
+    if (post.comments[i].user === params.user) {
+      icon = post.comments[i].icon;
+      color = post.comments[i].color;
+      match = true;
+      break;
+    }
+  }
+
+  if (!match) {
+    if (post.iconIndex >= 9) {
+      post.iconIndex = 0;
+      post.colorIndex = post.colorIndex >= 9 ? 0 : post.colorIndex + 1;
+    } else {
+      post.iconIndex += 1;
+    }
+  }
+
+  post.comments.push({
+    text: params.comment,
+    user: params.user,
+    upvoters: [params.user],
+    downvoters: [],
+    timestamp: Date.now(),
+    icon,
+    color,
+  });
+  post.commentsLen += 1;
+
+  return post;
+}
+
 function updatePost(post, params) {
   switch (params.action) {
     case 'UPVOTE_POST':
@@ -99,28 +137,20 @@ function updatePost(post, params) {
       break;
     case 'UPVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment._id === params.commentId) {
+        if (comment._id.equals(params.commentId)) {
           comments[index] = vote(comment, params.user, 'UP');
         }
       });
       break;
     case 'DOWNVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        console.log('ID');
-        console.log(params._id);
-        if (comment._id === params.commentId) {
+        if (comment._id.equals(params.commentId)) {
           comments[index] = vote(comment, params.user, 'DOWN');
         }
       });
       break;
     case 'CREATE_COMMENT':
-      post.comments.push({
-        text: params.comment,
-        user: params.user,
-        upvoters: [params.user],
-        downvoters: [],
-        timestamp: Date.now(),
-      });
+      post = addComment(post, params);
       break;
     default:
   }
@@ -131,9 +161,7 @@ function updatePost(post, params) {
 export const editPost = (req, res) => {
   Post.findById(req.params.id)
     .then((post) => {
-      console.log(`before post ${post}`);
       post = updatePost(post, req.body);
-      console.log(`after post ${post}`);
       post.save()
         .then((updated) => {
           res.json(updated);
