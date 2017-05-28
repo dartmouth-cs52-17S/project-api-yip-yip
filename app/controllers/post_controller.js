@@ -148,7 +148,7 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.lat, req.query.long] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort('-timestamp')
     .then((posts) => {
