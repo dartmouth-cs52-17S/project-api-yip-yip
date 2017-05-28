@@ -25,8 +25,9 @@ export const getPosts = (req, res) => {
       sort.commentsLen = -1;
       break;
     default:
+      sort.timestamp = -1;
+      break;
   }
-  sort.timestamp = -1;
 
   Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
     .limit(10) // TODO: input limit to allow for dynamic loading
