@@ -1,5 +1,6 @@
-// import TinyQueue from 'tinyqueue';
 import Post from '../models/post_model';
+
+const RANGE = 8000;
 
 export const createPost = (req, res) => {
   const { text, tags, coordinates, user } = req.body;
@@ -29,7 +30,7 @@ export const getPosts = (req, res) => {
   }
   sort.timestamp = -1;
 
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
     .skip((req.query.page - 1) * 5)
     .limit(5)
     .sort(sort)
@@ -147,9 +148,9 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, tags: { $all: req.query.tags } })
     .skip((req.query.page - 1) * 5)
-    .limit(10)
+    .limit(5)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
@@ -163,14 +164,39 @@ export const getTrendingTags = (req, res) => {
   const date = new Date();
   date.setDate(date.getDate() - 7);
   console.log(date);
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, timestamp: { $gte: date } })
+  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, timestamp: { $gte: date } })
     .select('tags')
     .then((tags) => {
-      // const tagFreqs = {};
-      // tags.forEach((item) => {
-      //
-      // });
-      res.json(tags);
+      const tagFreqs = {};
+      for (let i = 0; i < tags.length; i++) {
+        for (let j = 0; j < tags[i].tags.length; j++) {
+          const tag = tags[i].tags[j];
+          if (tagFreqs.hasOwnProperty(tag)) {
+            tagFreqs[tag] += 1;
+          } else {
+            tagFreqs[tag] = 1;
+          }
+        }
+      }
+
+      const sortArray = [];
+      for (const tag in tagFreqs) {
+        sortArray.push([tag, tagFreqs[tag]]);
+      }
+
+      sortArray.sort((a, b) => {
+        return b[1] - a[1];
+      });
+
+      const trendingTags = [];
+      for (let i = 0; i < 5; i++) {
+        if (!sortArray[i]) {
+          break;
+        }
+        trendingTags.push(sortArray[i][0]);
+      }
+
+      res.json(trendingTags);
     })
     .catch((err) => {
       res.status(500).json(err);
