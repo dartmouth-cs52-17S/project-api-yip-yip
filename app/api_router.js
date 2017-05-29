@@ -17,6 +17,8 @@ router.route('/report')
   .post(Reports.createReport)
   .get(Reports.getReports);
 
+router.get('/userPosts/:id', Posts.getUserPosts);
+
 router.get('/search', Posts.getByTags);
 
 // router.get('/user/:id', Posts.getPostsById);
