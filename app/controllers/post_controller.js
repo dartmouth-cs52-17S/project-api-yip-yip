@@ -1,5 +1,7 @@
 import { PostModel } from '../models/post_model';
 
+const RANGE = 8000;
+
 export const createPost = (req, res) => {
   const { text, tags, coordinates, user } = req.body;
   const p = new PostModel({ tags, text, user, location: { coordinates }, upvoters: [user] });
@@ -18,20 +20,19 @@ export const createPost = (req, res) => {
 export const getPosts = (req, res) => {
   const sort = {};
   switch (req.query.sort) {
-    case 'VOTES':
+    case 'Top':
       sort.score = -1;
       break;
-    case 'COMMENTS':
+    case 'Comments':
       sort.commentsLen = -1;
       break;
     default:
-      sort.timestamp = -1;
-      break;
   }
+  sort.timestamp = -1;
 
-  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
     .skip((req.query.page - 1) * 5)
-    .limit(5) // TODO: input limit to allow for dynamic loading
+    .limit(5)
     .sort(sort)
     .then((posts) => {
       res.json(posts);
@@ -88,6 +89,44 @@ function vote(item, user, direction) {
   return item;
 }
 
+function addComment(post, params) {
+  let icon = post.commentIcons[post.iconIndex];
+  let color = post.commentColors[post.colorIndex];
+  let match = false;
+  for (let i = 0; i < post.comments.length; i++) {
+    console.log(post.comments[i], params.user);
+    console.log('here');
+    if (post.comments[i].user === params.user) {
+      icon = post.comments[i].icon;
+      color = post.comments[i].color;
+      match = true;
+      break;
+    }
+  }
+
+  if (!match) {
+    if (post.iconIndex >= 9) {
+      post.iconIndex = 0;
+      post.colorIndex = post.colorIndex >= 9 ? 0 : post.colorIndex + 1;
+    } else {
+      post.iconIndex += 1;
+    }
+  }
+
+  post.comments.push({
+    text: params.comment,
+    user: params.user,
+    upvoters: [params.user],
+    downvoters: [],
+    timestamp: Date.now(),
+    icon,
+    color,
+  });
+  post.commentsLen += 1;
+
+  return post;
+}
+
 function updatePost(post, params) {
   switch (params.action) {
     case 'UPVOTE_POST':
@@ -98,30 +137,20 @@ function updatePost(post, params) {
       break;
     case 'UPVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        if (comment._id === params.commentId) {
-          // console.log('HUZZAH A MATCH');
+        if (comment._id.equals(params.commentId)) {
           comments[index] = vote(comment, params.user, 'UP');
         }
       });
       break;
     case 'DOWNVOTE_COMMENT':
       post.comments.forEach((comment, index, comments) => {
-        console.log('ID');
-        console.log(params._id);
-        if (comment._id === params.commentId) {
-          // console.log('HUZZAH A MATCH');
+        if (comment._id.equals(params.commentId)) {
           comments[index] = vote(comment, params.user, 'DOWN');
         }
       });
       break;
     case 'CREATE_COMMENT':
-      post.comments.push({
-        text: params.comment,
-        user: params.user,
-        upvoters: [params.user],
-        downvoters: [],
-        timestamp: Date.now(),
-      });
+      post = addComment(post, params);
       break;
     default:
   }
@@ -132,9 +161,7 @@ function updatePost(post, params) {
 export const editPost = (req, res) => {
   PostModel.findById(req.params.id)
     .then((post) => {
-      console.log(`before post ${post}`);
       post = updatePost(post, req.body);
-      console.log(`after post ${post}`);
       post.save()
         .then((updated) => {
           res.json(updated);
@@ -149,9 +176,9 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, tags: { $all: req.query.tags } })
     .skip((req.query.page - 1) * 5)
-    .limit(10) // TODO: input limit to allow for dynamic loading
+    .limit(5)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
@@ -165,12 +192,39 @@ export const getTrendingTags = (req, res) => {
   const date = new Date();
   date.setDate(date.getDate() - 7);
   console.log(date);
-  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, timestamp: { $gte: date } })
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, timestamp: { $gte: date } })
     .select('tags')
     .then((tags) => {
-      // const tagFreqs = {};
-      // tags.forEach();
-      res.json(tags);
+      const tagFreqs = {};
+      for (let i = 0; i < tags.length; i++) {
+        for (let j = 0; j < tags[i].tags.length; j++) {
+          const tag = tags[i].tags[j];
+          if (tagFreqs.hasOwnProperty(tag)) {
+            tagFreqs[tag] += 1;
+          } else {
+            tagFreqs[tag] = 1;
+          }
+        }
+      }
+
+      const sortArray = [];
+      for (const tag in tagFreqs) {
+        sortArray.push([tag, tagFreqs[tag]]);
+      }
+
+      sortArray.sort((a, b) => {
+        return b[1] - a[1];
+      });
+
+      const trendingTags = [];
+      for (let i = 0; i < 5; i++) {
+        if (!sortArray[i]) {
+          break;
+        }
+        trendingTags.push(sortArray[i][0]);
+      }
+
+      res.json(trendingTags);
     })
     .catch((err) => {
       res.status(500).json(err);
