@@ -31,8 +31,8 @@ export const getPosts = (req, res) => {
   sort.timestamp = -1;
 
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
-    .skip((req.query.page - 1) * 5)
-    .limit(5)
+    .skip((req.query.page - 1) * 15)
+    .limit(15)
     .sort(sort)
     .then((posts) => {
       res.json(posts);
