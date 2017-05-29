@@ -230,3 +230,16 @@ export const getTrendingTags = (req, res) => {
       res.status(500).json(err);
     });
 };
+
+export const getUserPosts = (req, res) => {
+  PostModel.find({ user: req.params.id })
+    .skip((req.query.page - 1) * 5)
+    .limit(5)
+    .sort('-timestamp')
+    .then((posts) => {
+      res.json(posts);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+};
