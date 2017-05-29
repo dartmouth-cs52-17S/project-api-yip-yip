@@ -3,8 +3,11 @@ import { PostModel } from '../models/post_model';
 const RANGE = 8000;
 
 export const createPost = (req, res) => {
-  const { text, tags, coordinates, user } = req.body;
+  const { tags, text, coordinates, user } = req.body;
   const p = new PostModel({ tags, text, user, location: { coordinates }, upvoters: [user] });
+  p.searchTags = tags.map((tag) => {
+    return tag.toLowerCase();
+  });
   p.score = 1;
   p.commentsLen = 0;
   p.timestamp = Date.now();
@@ -184,7 +187,16 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, tags: { $all: req.query.tags } })
+  let noCaseTags = '';
+  if (req.query.tags instanceof Array) {
+    noCaseTags = req.query.tags.map((tag) => {
+      return tag.toLowerCase();
+    });
+  } else {
+    noCaseTags = req.query.tags.toLowerCase();
+  }
+
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, searchTags: { $all: noCaseTags } })
     .skip((req.query.page - 1) * 5)
     .limit(5)
     .sort('-timestamp')
