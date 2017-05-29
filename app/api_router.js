@@ -19,6 +19,8 @@ router.route('/report')
 
 router.get('/search', Posts.getByTags);
 
+// router.get('/user/:id', Posts.getPostsById);
+
 router.get('/tags', Posts.getTrendingTags);
 
 export default router;

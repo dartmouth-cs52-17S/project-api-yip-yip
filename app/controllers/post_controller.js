@@ -31,8 +31,8 @@ export const getPosts = (req, res) => {
   sort.timestamp = -1;
 
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
-    .skip((req.query.page - 1) * 5)
-    .limit(5)
+    .skip((req.query.page - 1) * 20)
+    .limit(20)
     .sort(sort)
     .then((posts) => {
       res.json(posts);
@@ -177,8 +177,8 @@ export const editPost = (req, res) => {
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, tags: { $all: req.query.tags } })
-    .skip((req.query.page - 1) * 5)
-    .limit(5)
+    .skip((req.query.page - 1) * 20)
+    .limit(20)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
@@ -217,7 +217,7 @@ export const getTrendingTags = (req, res) => {
       });
 
       const trendingTags = [];
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 20; i++) {
         if (!sortArray[i]) {
           break;
         }
