@@ -94,6 +94,8 @@ function addComment(post, params) {
   let color = post.commentColors[post.colorIndex];
   let match = false;
   for (let i = 0; i < post.comments.length; i++) {
+    console.log(post.comments[i], params.user);
+    console.log('here');
     if (post.comments[i].user === params.user) {
       icon = post.comments[i].icon;
       color = post.comments[i].color;
@@ -103,8 +105,12 @@ function addComment(post, params) {
   }
 
   if (!match) {
-    post.iconIndex = post.iconIndex >= 9 ? 0 : post.iconIndex + 1;
-    post.colorIndex = post.colorIndex >= 7 ? 0 : post.colorIndex + 1;
+    if (post.iconIndex >= 9) {
+      post.iconIndex = 0;
+      post.colorIndex = post.colorIndex >= 9 ? 0 : post.colorIndex + 1;
+    } else {
+      post.iconIndex += 1;
+    }
   }
 
   post.comments.push({
@@ -118,17 +124,6 @@ function addComment(post, params) {
   });
   post.commentsLen += 1;
 
-  return post;
-}
-
-function deleteComment(post, id) {
-  for (let i = 0; i < post.comments.length; i++) {
-    if (post.comments[i]._id.equals(id)) {
-      post.comments.splice(i, 1);
-      post.commentsLen -= 1;
-      break;
-    }
-  }
   return post;
 }
 
@@ -157,9 +152,6 @@ function updatePost(post, params) {
     case 'CREATE_COMMENT':
       post = addComment(post, params);
       break;
-    case 'DELETE_COMMENT':
-      post = deleteComment(post, params.commentId);
-      break;
     default:
   }
 
@@ -185,8 +177,8 @@ export const editPost = (req, res) => {
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, tags: { $all: req.query.tags } })
-    .skip((req.query.page - 1) * 20)
-    .limit(20)
+    .skip((req.query.page - 1) * 5)
+    .limit(5)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
@@ -225,7 +217,7 @@ export const getTrendingTags = (req, res) => {
       });
 
       const trendingTags = [];
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 5; i++) {
         if (!sortArray[i]) {
           break;
         }
@@ -233,19 +225,6 @@ export const getTrendingTags = (req, res) => {
       }
 
       res.json(trendingTags);
-    })
-    .catch((err) => {
-      res.status(500).json(err);
-    });
-};
-
-export const getUserPosts = (req, res) => {
-  PostModel.find({ user: req.params.id })
-    .skip((req.query.page - 1) * 5)
-    .limit(5)
-    .sort('-timestamp')
-    .then((posts) => {
-      res.json(posts);
     })
     .catch((err) => {
       res.status(500).json(err);
