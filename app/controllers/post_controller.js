@@ -94,8 +94,6 @@ function addComment(post, params) {
   let color = post.commentColors[post.colorIndex];
   let match = false;
   for (let i = 0; i < post.comments.length; i++) {
-    console.log(post.comments[i], params.user);
-    console.log('here');
     if (post.comments[i].user === params.user) {
       icon = post.comments[i].icon;
       color = post.comments[i].color;
@@ -123,6 +121,17 @@ function addComment(post, params) {
   return post;
 }
 
+function deleteComment(post, id) {
+  for (let i = 0; i < post.comments.length; i++) {
+    if (post.comments[i]._id.equals(id)) {
+      post.comments.splice(i, 1);
+      post.commentsLen -= 1;
+      break;
+    }
+  }
+  return post;
+}
+
 function updatePost(post, params) {
   switch (params.action) {
     case 'UPVOTE_POST':
@@ -147,6 +156,9 @@ function updatePost(post, params) {
       break;
     case 'CREATE_COMMENT':
       post = addComment(post, params);
+      break;
+    case 'DELETE_COMMENT':
+      post = deleteComment(post, params.commentId);
       break;
     default:
   }
