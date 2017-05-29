@@ -1,6 +1,6 @@
 import ReportModel from '../models/report_model';
 
-const createReport = (req, res) => {
+export const createReport = (req, res) => {
   const { reporter, item, type, severity, additionalInfo } = req.body;
   const r = new ReportModel({ reporter, severity, additionalInfo });
   if (type === 'COMMENT') {
@@ -19,4 +19,13 @@ const createReport = (req, res) => {
     });
 };
 
-export default createReport;
+export const getReports = (req, res) => {
+  ReportModel.find({})
+    .sort('-timestamp')
+    .then((reports) => {
+      res.json(reports);
+    })
+    .catch((err) => {
+      res.status(500).json(err);
+    });
+};
