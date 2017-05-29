@@ -16,14 +16,14 @@ const icons = [
 ];
 
 const colors = [
-  '#f00',
-  '#0f0',
-  '#00f',
-  '#f0f',
-  '#555',
-  '#050',
-  '#005',
-  '#500',
+  '#6C56BA',
+  '#9C8FC4',
+  '#DA5AA4',
+  '#E99BC9',
+  '#3C3559',
+  '#3B00C6',
+  '#29017F',
+  '#494FFF',
 ];
 
 const PostSchema = new Schema({
