@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as Posts from './controllers/post_controller';
+import createReport from './controllers/report_controller';
 
 const router = Router();
 
@@ -11,6 +12,9 @@ router.route('/posts/:id')
   .get(Posts.getPost)
   .put(Posts.editPost)
   .delete(Posts.deletePost);
+
+router.route('/report')
+  .post(createReport);
 
 router.get('/search', Posts.getByTags);
 

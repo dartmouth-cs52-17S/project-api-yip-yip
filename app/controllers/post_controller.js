@@ -1,8 +1,8 @@
-import Post from '../models/post_model';
+import { PostModel } from '../models/post_model';
 
 export const createPost = (req, res) => {
   const { text, tags, coordinates, user } = req.body;
-  const p = new Post({ tags, text, user, location: { coordinates }, upvoters: [user] });
+  const p = new PostModel({ tags, text, user, location: { coordinates }, upvoters: [user] });
   p.score = 1;
   p.commentsLen = 0;
   p.timestamp = Date.now();
@@ -29,7 +29,7 @@ export const getPosts = (req, res) => {
       break;
   }
 
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } } })
     .skip((req.query.page - 1) * 5)
     .limit(5) // TODO: input limit to allow for dynamic loading
     .sort(sort)
@@ -43,7 +43,7 @@ export const getPosts = (req, res) => {
 
 export const getPost = (req, res) => {
   console.log(req.params.id);
-  Post.findById(req.params.id)
+  PostModel.findById(req.params.id)
     .then((post) => {
       res.json(post);
     }).catch((err) => {
@@ -52,7 +52,7 @@ export const getPost = (req, res) => {
 };
 
 export const deletePost = (req, res) => {
-  Post.findByIdAndRemove(req.params.id)
+  PostModel.findByIdAndRemove(req.params.id)
     .then((post) => {
       res.json(post);
     }).catch((err) => {
@@ -130,7 +130,7 @@ function updatePost(post, params) {
 }
 
 export const editPost = (req, res) => {
-  Post.findById(req.params.id)
+  PostModel.findById(req.params.id)
     .then((post) => {
       console.log(`before post ${post}`);
       post = updatePost(post, req.body);
@@ -149,7 +149,7 @@ export const editPost = (req, res) => {
 
 // query.tags needs to be an array of the tags
 export const getByTags = (req, res) => {
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, tags: { $all: req.query.tags } })
     .skip((req.query.page - 1) * 5)
     .limit(10) // TODO: input limit to allow for dynamic loading
     .sort('-timestamp')
@@ -165,7 +165,7 @@ export const getTrendingTags = (req, res) => {
   const date = new Date();
   date.setDate(date.getDate() - 7);
   console.log(date);
-  Post.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, timestamp: { $gte: date } })
+  PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: 8000 } }, timestamp: { $gte: date } })
     .select('tags')
     .then((tags) => {
       // const tagFreqs = {};
