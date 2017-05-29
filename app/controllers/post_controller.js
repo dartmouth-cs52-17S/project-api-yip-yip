@@ -105,12 +105,8 @@ function addComment(post, params) {
   }
 
   if (!match) {
-    if (post.iconIndex >= 9) {
-      post.iconIndex = 0;
-      post.colorIndex = post.colorIndex >= 9 ? 0 : post.colorIndex + 1;
-    } else {
-      post.iconIndex += 1;
-    }
+    post.iconIndex = post.iconIndex >= 9 ? 0 : post.iconIndex + 1;
+    post.colorIndex = post.colorIndex >= 7 ? 0 : post.colorIndex + 1;
   }
 
   post.comments.push({
