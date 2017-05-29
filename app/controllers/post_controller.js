@@ -34,8 +34,8 @@ export const getPosts = (req, res) => {
   sort.timestamp = -1;
 
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
-    .skip((req.query.page - 1) * 5)
-    .limit(5)
+    .skip((req.query.page - 1) * 15)
+    .limit(15)
     .sort(sort)
     .then((posts) => {
       res.json(posts);
@@ -97,6 +97,8 @@ function addComment(post, params) {
   let color = post.commentColors[post.colorIndex];
   let match = false;
   for (let i = 0; i < post.comments.length; i++) {
+    console.log(post.comments[i], params.user);
+    console.log('here');
     if (post.comments[i].user === params.user) {
       icon = post.comments[i].icon;
       color = post.comments[i].color;
@@ -106,8 +108,12 @@ function addComment(post, params) {
   }
 
   if (!match) {
-    post.iconIndex = post.iconIndex >= 9 ? 0 : post.iconIndex + 1;
-    post.colorIndex = post.colorIndex >= 7 ? 0 : post.colorIndex + 1;
+    if (post.iconIndex >= 9) {
+      post.iconIndex = 0;
+      post.colorIndex = post.colorIndex >= 9 ? 0 : post.colorIndex + 1;
+    } else {
+      post.iconIndex += 1;
+    }
   }
 
   post.comments.push({
@@ -121,17 +127,6 @@ function addComment(post, params) {
   });
   post.commentsLen += 1;
 
-  return post;
-}
-
-function deleteComment(post, id) {
-  for (let i = 0; i < post.comments.length; i++) {
-    if (post.comments[i]._id.equals(id)) {
-      post.comments.splice(i, 1);
-      post.commentsLen -= 1;
-      break;
-    }
-  }
   return post;
 }
 
@@ -159,9 +154,6 @@ function updatePost(post, params) {
       break;
     case 'CREATE_COMMENT':
       post = addComment(post, params);
-      break;
-    case 'DELETE_COMMENT':
-      post = deleteComment(post, params.commentId);
       break;
     default:
   }
