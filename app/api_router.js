@@ -13,8 +13,7 @@ router.route('/posts/:id')
   .put(Posts.editPost)
   .delete(Posts.deletePost);
 
-router.route('/report')
-  .post(createReport);
+router.post('/report', createReport);
 
 router.get('/search', Posts.getByTags);
 
