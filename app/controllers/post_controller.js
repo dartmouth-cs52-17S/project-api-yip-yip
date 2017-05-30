@@ -229,7 +229,9 @@ export const getTrendingTags = (req, res) => {
 
       const sortArray = [];
       for (const tag in tagFreqs) {
-        sortArray.push([tag, tagFreqs[tag]]);
+        if (tag !== '') {
+          sortArray.push([tag, tagFreqs[tag]]);
+        }
       }
 
       sortArray.sort((a, b) => {
