@@ -79,7 +79,7 @@ function vote(item, user, direction) {
     console.log('Neither UP nor DOWN direction was provided.');
     return item;
   }
-  if (addArray.includes(user)) {
+  if (!user || addArray.includes(user)) {
     return item;
   } else if (removeArray.includes(user)) {
     removeArray.splice(removeArray.indexOf(user), 1);
@@ -197,14 +197,14 @@ export const getByTags = (req, res) => {
   }
 
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, searchTags: { $all: noCaseTags } })
-    .skip((req.query.page - 1) * 5)
+    .skip((req.query.page - 1) * 15)
     .limit(5)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
     })
     .catch((err) => {
-      res.status(500).json(err);
+      res.status(1500).json(err);
     });
 };
 
@@ -253,8 +253,8 @@ export const getTrendingTags = (req, res) => {
 
 export const getUserPosts = (req, res) => {
   PostModel.find({ user: req.params.id })
-    .skip((req.query.page - 1) * 5)
-    .limit(5)
+    .skip((req.query.page - 1) * 15)
+    .limit(15)
     .sort('-timestamp')
     .then((posts) => {
       res.json(posts);
