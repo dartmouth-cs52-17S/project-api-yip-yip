@@ -1,8 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
-import shuffle from 'shuffle-array';
 import CommentSchema from './comment_model';
 
-const icons = [
+export const icons = [
   'music',
   'futbol-o',
   'gamepad',
@@ -15,7 +14,7 @@ const icons = [
   'snowflake-o',
 ];
 
-const colors = [
+export const colors = [
   '#6C56BA',
   '#9C8FC4',
   '#DA5AA4',
@@ -41,8 +40,8 @@ const PostSchema = new Schema({
   },
   upvoters: [String],
   downvoters: [String],
-  commentIcons: { type: [String], default: shuffle(icons, { copy: true }) },
-  commentColors: { type: [String], default: shuffle(colors, { copy: true }) },
+  commentIcons: [String],
+  commentColors: [String],
   iconIndex: { type: Number, default: 0 },
   colorIndex: { type: Number, default: 0 },
 }, {

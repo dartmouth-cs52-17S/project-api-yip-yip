@@ -1,4 +1,5 @@
-import { PostModel } from '../models/post_model';
+import shuffle from 'shuffle-array';
+import { icons, colors, PostModel } from '../models/post_model';
 
 const RANGE = 8000;
 
@@ -10,6 +11,8 @@ export const createPost = (req, res) => {
   });
   p.score = 1;
   p.commentsLen = 0;
+  p.commentIcons = shuffle(icons, { copy: true });
+  p.commentColors = shuffle(colors, { copy: true });
   p.timestamp = Date.now();
   p.save()
     .then((result) => {
