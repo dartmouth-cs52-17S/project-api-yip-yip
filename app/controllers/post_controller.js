@@ -105,11 +105,9 @@ function addComment(post, params) {
     }
   }
 
-  console.log('here');
   if (!match) {
     post.iconIndex = post.iconIndex >= 9 ? 0 : post.iconIndex + 1;
     post.colorIndex = post.colorIndex >= 7 ? 0 : post.colorIndex + 1;
-    console.log(post.iconIndex, post.colorIndex);
   }
 
   post.comments.push({
@@ -123,6 +121,17 @@ function addComment(post, params) {
   });
   post.commentsLen += 1;
 
+  return post;
+}
+
+function deleteComment(post, id) {
+  for (let i = 0; i < post.comments.length; i++) {
+    if (post.comments[i]._id.equals(id)) {
+      post.comments.splice(i, 1);
+      post.commentsLen -= 1;
+      break;
+    }
+  }
   return post;
 }
 
@@ -150,6 +159,9 @@ function updatePost(post, params) {
       break;
     case 'CREATE_COMMENT':
       post = addComment(post, params);
+      break;
+    case 'DELETE_COMMENT':
+      post = deleteComment(post, params.commentId);
       break;
     default:
   }
