@@ -20,10 +20,10 @@ const colors = [
   '#9C8FC4',
   '#DA5AA4',
   '#E99BC9',
-  '#3C3559',
-  '#3B00C6',
-  '#29017F',
-  '#494FFF',
+  '#7A719C',
+  '#D0CCDF',
+  '#88C5E8',
+  '#489DCD',
 ];
 
 const PostSchema = new Schema({
