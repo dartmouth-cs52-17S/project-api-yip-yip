@@ -97,8 +97,6 @@ function addComment(post, params) {
   let color = post.commentColors[post.colorIndex];
   let match = false;
   for (let i = 0; i < post.comments.length; i++) {
-    console.log(post.comments[i], params.user);
-    console.log('here');
     if (post.comments[i].user === params.user) {
       icon = post.comments[i].icon;
       color = post.comments[i].color;
@@ -107,13 +105,11 @@ function addComment(post, params) {
     }
   }
 
+  console.log('here');
   if (!match) {
-    if (post.iconIndex >= 9) {
-      post.iconIndex = 0;
-      post.colorIndex = post.colorIndex >= 9 ? 0 : post.colorIndex + 1;
-    } else {
-      post.iconIndex += 1;
-    }
+    post.iconIndex = post.iconIndex >= 9 ? 0 : post.iconIndex + 1;
+    post.colorIndex = post.colorIndex >= 7 ? 0 : post.colorIndex + 1;
+    console.log(post.iconIndex, post.colorIndex);
   }
 
   post.comments.push({
