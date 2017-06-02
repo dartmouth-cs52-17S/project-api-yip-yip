@@ -1,3 +1,5 @@
+require('newrelic');
+/* eslint-disable import/first */
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -5,8 +7,6 @@ import path from 'path';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import apiRouter from './api_router';
-
-require('newrelic');
 
 // initialize
 const app = express();
