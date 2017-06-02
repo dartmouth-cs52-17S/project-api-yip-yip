@@ -2,6 +2,29 @@ import shuffle from 'shuffle-array';
 import { icons, colors, PostModel } from '../models/post_model';
 
 const RANGE = 8000;
+const SELECTION = '-commentIcons -commentColors -searchTags -iconIndex -colorIndex';
+
+function voted(item, user) {
+  if (item.upvoters.includes(user)) {
+    return 'UP';
+  } else if (item.downvoters.includes(user)) {
+    return 'DOWN';
+  } else {
+    return 'NONE';
+  }
+}
+
+function checkVotes(post, user) {
+  post.voted = voted(post, user);
+  post.upvoters = undefined;
+  post.downvoters = undefined;
+
+  post.comments.forEach((comment) => {
+    comment.voted = voted(comment, user);
+    comment.upvoters = undefined;
+    comment.downvoters = undefined;
+  });
+}
 
 export const createPost = (req, res) => {
   const { tags, text, coordinates, user } = req.body;
@@ -37,10 +60,15 @@ export const getPosts = (req, res) => {
   sort.timestamp = -1;
 
   PostModel.find({ score: { $gte: -4 }, location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
+    .select(SELECTION)
     .skip((req.query.page - 1) * 15)
     .limit(15)
     .sort(sort)
+    .lean()
     .then((posts) => {
+      posts.forEach((post) => {
+        checkVotes(post, req.query.user);
+      });
       res.json(posts);
     })
     .catch((err) => {
@@ -49,9 +77,11 @@ export const getPosts = (req, res) => {
 };
 
 export const getPost = (req, res) => {
-  console.log(req.params.id);
   PostModel.findById(req.params.id)
+    .select(SELECTION)
+    .lean()
     .then((post) => {
+      checkVotes(post, req.query.user);
       res.json(post);
     }).catch((err) => {
       res.status(500).json(err);
@@ -200,10 +230,15 @@ export const getByTags = (req, res) => {
   }
 
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, searchTags: { $all: noCaseTags } })
+    .select(SELECTION)
     .skip((req.query.page - 1) * 15)
     .limit(5)
     .sort('-timestamp')
+    .lean()
     .then((posts) => {
+      posts.forEach((post) => {
+        checkVotes(post, req.query.user);
+      });
       res.json(posts);
     })
     .catch((err) => {
@@ -258,10 +293,15 @@ export const getTrendingTags = (req, res) => {
 
 export const getUserPosts = (req, res) => {
   PostModel.find({ user: req.params.id })
+    .select(SELECTION)
     .skip((req.query.page - 1) * 15)
     .limit(15)
     .sort('-timestamp')
+    .lean()
     .then((posts) => {
+      posts.forEach((post) => {
+        checkVotes(post, req.query.user);
+      });
       res.json(posts);
     })
     .catch((err) => {
