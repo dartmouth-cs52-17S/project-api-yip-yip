@@ -6,6 +6,8 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import apiRouter from './api_router';
 
+require('newrelic');
+
 // initialize
 const app = express();
 
