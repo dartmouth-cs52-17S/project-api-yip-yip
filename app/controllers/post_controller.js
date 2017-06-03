@@ -83,7 +83,8 @@ export const getPost = (req, res) => {
     .then((post) => {
       checkVotes(post, req.query.user);
       res.json(post);
-    }).catch((err) => {
+    })
+    .catch((err) => {
       res.status(500).json(err);
     });
 };
