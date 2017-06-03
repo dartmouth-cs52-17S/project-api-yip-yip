@@ -19,10 +19,20 @@ function checkVotes(post, user) {
   post.upvoters = undefined;
   post.downvoters = undefined;
 
-  post.comments.forEach((comment) => {
+  const badComments = [];
+  post.comments.forEach((comment, i) => {
+    if (comment.score <= -5) {
+      badComments.push(i);
+    }
+
     comment.voted = voted(comment, user);
     comment.upvoters = undefined;
     comment.downvoters = undefined;
+  });
+
+  badComments.forEach((index) => {
+    post.comments.splice(index, 1);
+    post.commentsLen -= 1;
   });
 }
 
@@ -152,6 +162,7 @@ function addComment(post, params) {
     timestamp: Date.now(),
     icon,
     color,
+    score: 1,
   });
   post.commentsLen += 1;
 

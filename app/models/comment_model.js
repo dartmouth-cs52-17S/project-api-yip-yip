@@ -8,14 +8,15 @@ const CommentSchema = new Schema({
   downvoters: [String],
   icon: String,
   color: String,
+  score: Number,
 }, {
   toJSON: {
     virtuals: true,
   },
 });
 
-CommentSchema.virtual('score').get(function calcScore() {
-  return this.upvoters.length - this.downvoters.length;
-});
+// CommentSchema.virtual('score').get(function calcScore() {
+//   return this.upvoters.length - this.downvoters.length;
+// });
 
 export default CommentSchema;
