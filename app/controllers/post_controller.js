@@ -312,7 +312,7 @@ export const getUserPosts = (req, res) => {
     .lean()
     .then((posts) => {
       posts.forEach((post) => {
-        checkVotes(post, req.query.user);
+        checkVotes(post, req.params.id);
       });
       res.json(posts);
     })
