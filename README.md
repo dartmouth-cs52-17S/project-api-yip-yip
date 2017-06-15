@@ -4,12 +4,12 @@
 This is the API part of the Yip Yip application that we are making for CS52. The root URL is https://yip-yip.herokuapp.com/api.
 Working example [here](http://yip-yip.herokuapp.com/api/posts/?long=5.000001&lat=6.000001)!!
 
-### Possible Actions
-- UPVOTE_POST
-- DOWNVOTE_POST
-- UPVOTE_COMMENT
-- DOWNVOTE_COMMENT
-- CREATE_COMMENT
+### Setup
+To run the api locally:
+```shell
+npm install
+npm run dev
+```
 
 ### Testing
 

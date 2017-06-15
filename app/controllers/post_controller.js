@@ -71,8 +71,8 @@ export const getPosts = (req, res) => {
 
   PostModel.find({ score: { $gte: -4 }, location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } } })
     .select(SELECTION)
-    .skip((req.query.page - 1) * 15)
-    .limit(15)
+    .skip((req.query.page - 1) * 25)
+    .limit(25)
     .sort(sort)
     .lean()
     .then((posts) => {
@@ -243,7 +243,7 @@ export const getByTags = (req, res) => {
 
   PostModel.find({ location: { $near: { $geometry: { type: 'Point', coordinates: [req.query.long, req.query.lat] }, $maxDistance: RANGE } }, searchTags: { $all: noCaseTags } })
     .select(SELECTION)
-    .skip((req.query.page - 1) * 15)
+    .skip((req.query.page - 1) * 5)
     .limit(5)
     .sort('-timestamp')
     .lean()
@@ -306,8 +306,8 @@ export const getTrendingTags = (req, res) => {
 export const getUserPosts = (req, res) => {
   PostModel.find({ user: req.params.id })
     .select(SELECTION)
-    .skip((req.query.page - 1) * 15)
-    .limit(15)
+    .skip((req.query.page - 1) * 25)
+    .limit(25)
     .sort('-timestamp')
     .lean()
     .then((posts) => {
